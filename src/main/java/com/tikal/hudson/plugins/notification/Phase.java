@@ -57,6 +57,7 @@ public enum Phase {
 		buildState.setUrl(run.getUrl());
 		buildState.setPhase(this);
 		buildState.setStatus(getStatus(run));
+		buildState.setLog(run.getLog());
 
 		String rootUrl = Hudson.getInstance().getRootUrl();
 		if (rootUrl != null) {

@@ -33,6 +33,8 @@ public class BuildState {
 
 	private Map<String, String> parameters;
 
+	private String log;
+
 	public int getNumber() {
 		return number;
 	}
@@ -87,5 +89,13 @@ public class BuildState {
 
 	public String getDisplayName() {
 		return displayName;
+	}
+
+	public String getLog() {
+		return log;
+	}
+
+	public void setLog(String log) {
+		this.log = log;
 	}
 }
