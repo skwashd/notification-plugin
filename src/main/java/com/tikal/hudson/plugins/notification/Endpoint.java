@@ -23,6 +23,8 @@ public class Endpoint {
 
 	private Protocol protocol;
 
+	private Integer loglines = 0;
+
     /**
      * json as default
      */
@@ -31,10 +33,11 @@ public class Endpoint {
 	private String url;
 
 	@DataBoundConstructor
-	public Endpoint(Protocol protocol, String url, Format format) {
+	public Endpoint(Protocol protocol, String url, Format format, Integer loglines) {
 		this.protocol = protocol;
 		this.url = url;
 		this.format = format;
+		this.loglines = loglines;
 	}
 
 	public Protocol getProtocol() {
@@ -62,6 +65,17 @@ public class Endpoint {
 	
 	public void setFormat(Format format) {
 		this.format = format;
+	}
+
+	public Integer getLoglines() {
+		return this.loglines;
+	}
+
+	public void setLoglines(Integer loglines) {
+		if (null == loglines) {
+			loglines = 0;
+		}
+		this.loglines = loglines;
 	}
 
 	public FormValidation doCheckURL(@QueryParameter(value = "url", fixEmpty = true) String url) {

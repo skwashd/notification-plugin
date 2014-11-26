@@ -26,6 +26,7 @@ import hudson.model.TaskListener;
 import java.io.IOException;
 import java.util.List;
 
+import com.tikal.hudson.plugins.notification.Endpoint;
 import com.tikal.hudson.plugins.notification.model.BuildState;
 import com.tikal.hudson.plugins.notification.model.JobState;
 
@@ -39,7 +40,7 @@ public enum Phase {
 			List<Endpoint> targets = property.getEndpoints();
 			for (Endpoint target : targets) {
                 try {
-                    JobState jobState = buildJobState(run.getParent(), run);
+                    JobState jobState = buildJobState(run.getParent(), run, target);
 					target.getProtocol().send(target.getUrl(), target.getFormat().serialize(jobState));
                 } catch (IOException e) {
                     e.printStackTrace(listener.error("Failed to notify "+target));
@@ -48,7 +49,7 @@ public enum Phase {
 		}
 	}
 	
-	private JobState buildJobState(Job job, Run run) {
+	private JobState buildJobState(Job job, Run run, Endpoint target) {
 		JobState jobState = new JobState();
 		jobState.setName(job.getName());
 		jobState.setUrl(job.getUrl());
@@ -58,12 +59,7 @@ public enum Phase {
 		buildState.setPhase(this);
 		buildState.setStatus(getStatus(run));
 
-		String log = "[ERROR] Log unavailable.";
-		try {
-			log = run.getLog();
-		} catch (IOException e) {
-		}
-
+		String log = this.getLog(run, target);
 		buildState.setLog(log);
 
 		String rootUrl = Hudson.getInstance().getRootUrl();
@@ -93,5 +89,33 @@ public enum Phase {
 			status = result.toString();
 		}
 		return status;
+	}
+
+
+	private String getLog(Run run, Endpoint target) {
+		String log = new String("");
+		Integer loglines = target.getLoglines();
+		if (null == loglines) {
+			loglines = 0;
+		}
+		try {
+			switch (loglines) {
+				// The full log
+				case -1:
+					log = run.getLog();
+					break;
+					// No log
+				case 0:
+					break;
+				default:
+					List<String> logEntries = run.getLog(loglines);
+					for (String entry: logEntries) {
+						log += entry + "\n";
+					}
+			}
+		} catch (IOException e) {
+			log = "Unable to retrieve log";
+		}
+		return log;
 	}
 }
